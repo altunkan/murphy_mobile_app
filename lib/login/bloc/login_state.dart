@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import '../../util/model/api_error.dart';
+
 @immutable
 class LoginState {
   final bool isEmailValid;
@@ -7,6 +9,7 @@ class LoginState {
   final bool isSubmitting;
   final bool isSuccess;
   final bool isFailure;
+  final ApiError apiError;
 
   bool get isFormValid => isEmailValid && isPasswordValid;
 
@@ -16,6 +19,7 @@ class LoginState {
     @required this.isSubmitting,
     @required this.isSuccess,
     @required this.isFailure,
+    @required this.apiError
   });
 
   factory LoginState.empty() {
@@ -25,6 +29,7 @@ class LoginState {
       isSubmitting: false,
       isSuccess: false,
       isFailure: false,
+      apiError: null
     );
   }
 
@@ -35,16 +40,18 @@ class LoginState {
       isSubmitting: true,
       isSuccess: false,
       isFailure: false,
+      apiError: null
     );
   }
 
-  factory LoginState.failure() {
+  factory LoginState.failure(ApiError apiError) {
     return LoginState(
       isEmailValid: true,
       isPasswordValid: true,
       isSubmitting: false,
       isSuccess: false,
       isFailure: true,
+      apiError: apiError
     );
   }
 
@@ -55,6 +62,7 @@ class LoginState {
       isSubmitting: false,
       isSuccess: true,
       isFailure: false,
+      apiError: null
     );
   }
 
@@ -68,6 +76,7 @@ class LoginState {
       isSubmitting: false,
       isSuccess: false,
       isFailure: false,
+      apiError: null
     );
   }
 
@@ -78,6 +87,7 @@ class LoginState {
     bool isSubmitting,
     bool isSuccess,
     bool isFailure,
+    ApiError apiError
   }) {
     return LoginState(
       isEmailValid: isEmailValid ?? this.isEmailValid,
@@ -85,6 +95,7 @@ class LoginState {
       isSubmitting: isSubmitting ?? this.isSubmitting,
       isSuccess: isSuccess ?? this.isSuccess,
       isFailure: isFailure ?? this.isFailure,
+      apiError: apiError ?? this.apiError
     );
   }
 

@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-07 21:45:26 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-07 23:30:58
+ * @Last Modified time: 2019-10-08 22:03:04
  */
 
 import 'package:flutter/material.dart';
@@ -60,30 +60,28 @@ class _SignupFormState extends State<SignupForm> {
     return BlocListener<SignupBloc, SignupState>(
       listener: (context, state) {
         if (state.isFailure) {
-          Scaffold.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(
-              content: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text('Register Failure'),
-                    Icon(Icons.error)
-                  ]),
-            ));
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              // return object of type Dialog
+              return AlertDialog(
+                title: new Text("Error"),
+                content: new Text(state.apiError.message),
+                actions: <Widget>[
+                  new FlatButton(
+                    child: new Text("Close"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
         } else if (state.isSubmitting) {
-          Scaffold.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Registering...'),
-                    CircularProgressIndicator(),
-                  ],
-                ),
-              ),
-            );
+          Center(
+            child: CircularProgressIndicator(),
+          );
         } else if (state.isSuccess) {
           BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedIn());
         }
@@ -166,10 +164,9 @@ class _SignupFormState extends State<SignupForm> {
                                 icon: Icons.person,
                                 backgroundColor: Constants.mainColor,
                                 onPressed: () {
-                                  print("test");
-                                  isRegisterButtonEnabled(state)
-                                      ? _onFormSubmitted()
-                                      : null;
+                                  if (isRegisterButtonEnabled(state)) {
+                                    _onFormSubmitted();
+                                  }
                                 },
                               )),
                         ),

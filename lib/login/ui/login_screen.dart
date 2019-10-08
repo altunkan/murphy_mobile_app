@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-03 20:56:36 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-07 23:01:03
+ * @Last Modified time: 2019-10-08 23:15:56
  */
 
 import 'package:flutter/material.dart';
@@ -57,6 +57,25 @@ class _LoginFormState extends State<LoginForm> {
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state.isFailure) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              // return object of type Dialog
+              return AlertDialog(
+                title: new Text("Error"),
+                content: new Text(state.apiError.message),
+                actions: <Widget>[
+                  new FlatButton(
+                    child: new Text("Close"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+          /*
           Scaffold.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(
@@ -64,7 +83,12 @@ class _LoginFormState extends State<LoginForm> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[Text('Login Failure'), Icon(Icons.error)]),
             ));
+          */
         } else if (state.isSubmitting) {
+          Center(
+            child: CircularProgressIndicator(),
+          );
+          /*
           Scaffold.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
@@ -78,6 +102,7 @@ class _LoginFormState extends State<LoginForm> {
                 ),
               ),
             );
+          */
         } else if (state.isSuccess) {
           BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedIn());
         }
@@ -94,19 +119,6 @@ class _LoginFormState extends State<LoginForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  /*
-                  Container(
-                    height: 250,
-                    width: 250,
-                    decoration: BoxDecoration(
-                      color: const Color(0xff7c94b6),
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: AssetImage("assets/images/murphy_logo.png")
-                      )
-                    ),
-                  ),
-                  */
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -154,23 +166,37 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
                       Expanded(
                         child: Padding(
                             padding: const EdgeInsets.only(
                                 left: 20.0, right: 20.0, top: 10.0),
-                            child: SignInButtonBuilder(
-                              text: 'Sign in with Email',
-                              icon: Icons.email,
-                              backgroundColor: Constants.mainColor,
-                              onPressed: () {
-                                print(isPopulated);
-                                print(isLoginButtonEnabled(state));
-                                isLoginButtonEnabled(state)
-                                    ? _onFormSubmitted()
-                                    : null;
-                              },
+                            child: Container(
+                              alignment: Alignment.center,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Constants.mainColor,
+                                //borderRadius: BorderRadius.circular(9.0)
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.email,
+                                    color: Colors.white,
+                                    size: Constants.loginUiIconSize,
+                                  ),
+                                  SizedBox(width: 10.0),
+                                  Text(
+                                    "Sign in with Email",
+                                    style: Constants.loginUiTextStyle,
+                                  ),
+                                ],
+                              ),
                             )),
                       ),
                     ],
@@ -227,7 +253,8 @@ class _LoginFormState extends State<LoginForm> {
                             ),
                             onTap: () {
                               Navigator.of(context);
-                              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
                                 return SignupScreen();
                               }));
                             },

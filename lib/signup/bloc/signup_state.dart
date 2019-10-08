@@ -2,9 +2,11 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-07 21:21:31 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-07 22:00:57
+ * @Last Modified time: 2019-10-08 21:45:47
  */
 import 'package:meta/meta.dart';
+
+import '../../util/model/api_error.dart';
 
 @immutable
 class SignupState {
@@ -13,6 +15,7 @@ class SignupState {
   final bool isSubmitting;
   final bool isSuccess;
   final bool isFailure;
+  final ApiError apiError;
 
   bool get isFormValid => isEmailValid && isPasswordValid;
 
@@ -22,6 +25,7 @@ class SignupState {
     @required this.isSubmitting,
     @required this.isSuccess,
     @required this.isFailure,
+    @required this.apiError
   });
 
   factory SignupState.empty() {
@@ -31,6 +35,7 @@ class SignupState {
       isSubmitting: false,
       isSuccess: false,
       isFailure: false,
+      apiError: null
     );
   }
 
@@ -41,16 +46,18 @@ class SignupState {
       isSubmitting: true,
       isSuccess: false,
       isFailure: false,
+      apiError: null
     );
   }
 
-  factory SignupState.failure() {
+  factory SignupState.failure(ApiError apiError) {
     return SignupState(
       isEmailValid: true,
       isPasswordValid: true,
       isSubmitting: false,
       isSuccess: false,
       isFailure: true,
+      apiError: apiError
     );
   }
 
@@ -61,6 +68,7 @@ class SignupState {
       isSubmitting: false,
       isSuccess: true,
       isFailure: false,
+      apiError: null
     );
   }
 
@@ -74,6 +82,7 @@ class SignupState {
       isSubmitting: false,
       isSuccess: false,
       isFailure: false,
+      apiError: null
     );
   }
 
@@ -84,6 +93,7 @@ class SignupState {
     bool isSubmitting,
     bool isSuccess,
     bool isFailure,
+    ApiError apiError
   }) {
     return SignupState(
       isEmailValid: isEmailValid ?? this.isEmailValid,
@@ -91,6 +101,7 @@ class SignupState {
       isSubmitting: isSubmitting ?? this.isSubmitting,
       isSuccess: isSuccess ?? this.isSuccess,
       isFailure: isFailure ?? this.isFailure,
+      apiError: apiError ?? this.apiError
     );
   }
 

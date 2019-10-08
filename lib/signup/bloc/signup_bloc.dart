@@ -2,10 +2,11 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-07 21:27:06 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-07 23:05:50
+ * @Last Modified time: 2019-10-08 21:46:22
  */
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,8 +17,12 @@ import '../../constants.dart' as Constants;
 import '../../validators.dart';
 import '../model/signup_request.dart';
 import '../model/signup_response.dart';
+import '../../util/exception/api_error_exception.dart';
+import '../../util/model/api_error.dart';
 
 class SignupBloc extends Bloc<SignupEvent, SignupState> {
+  final logger = Logger();
+
   @override
   SignupState get initialState => SignupState.empty();
 
@@ -72,9 +77,9 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
       SignupRequest signupRequest = SignupRequest(email: email, name: email, password: password);
       SignupResponse signupResponse = await _signup(signupRequest);
       yield SignupState.success();
-    } catch (_) {
-      print(_);
-      yield SignupState.failure();
+    } on ApiErrorException catch (e) {
+      logger.e(e);
+      yield SignupState.failure(e.apiError);
     }
   }
 
@@ -89,11 +94,13 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
       },
       body: signupRequestJsonStr
     ).timeout(const Duration(seconds: 30));
+    Map<String, dynamic> signupResponseJson = json.decode(response.body);
     if (response.statusCode == 201) {
       print("Location ${response.headers["Location"]}");
-      return SignupResponse.fromJson(json.decode(response.body));
+      return SignupResponse.fromJson(signupResponseJson);
     } else {
-      throw Exception("Error while signup");
+      ApiErrorWrapper apiErrorWrapper = ApiErrorWrapper.fromJson(signupResponseJson);
+      throw ApiErrorException(apiError: apiErrorWrapper.apierror);
     }
   }  
 }

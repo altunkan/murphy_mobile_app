@@ -8,5 +8,6 @@ const signupUrl = "$apiBaseUrl/auth/signup";
 
 const mainColor = Color(0xFF18D191);
 
-const loginUiLabelStyle = TextStyle(fontSize: 14.0, fontFamily: 'Roboto');
-const loginUiTextStyle = TextStyle(fontFamily: 'Roboto', color: Color(0xFF18D191));
+const loginUiLabelStyle = TextStyle(fontSize: 16.0);
+const loginUiTextStyle = TextStyle(fontSize: 16.0, color: Colors.white, fontWeight: FontWeight.w500);
+const loginUiIconSize = 18.0;
