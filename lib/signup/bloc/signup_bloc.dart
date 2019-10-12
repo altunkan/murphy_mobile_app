@@ -2,23 +2,24 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-07 21:27:06 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-08 21:46:22
+ * @Last Modified time: 2019-10-12 18:01:23
  */
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 import './bloc.dart';
-import '../../constants.dart' as Constants;
 import '../../validators.dart';
 import '../model/signup_request.dart';
 import '../model/signup_response.dart';
 import '../../util/exception/api_error_exception.dart';
 import '../../util/model/api_error.dart';
+import '../../util/fetch_util.dart';
+import '../../constants.dart' as Constants;
+import '../../login/model/login_request.dart';
+import '../../login/model/login_response.dart';
 
 class SignupBloc extends Bloc<SignupEvent, SignupState> {
   final logger = Logger();
@@ -64,8 +65,7 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
 
   Stream<SignupState> _mapPasswordChangedToState(String password, String retypePassword) async* {
     yield currentState.update(
-      isPasswordValid: password.isNotEmpty && retypePassword.isNotEmpty ? password == retypePassword : true
-    );
+        isPasswordValid: password.isNotEmpty && retypePassword.isNotEmpty ? password == retypePassword : true);
   }
 
   Stream<SignupState> _mapFormSubmittedToState(
@@ -75,32 +75,20 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
     yield SignupState.loading();
     try {
       SignupRequest signupRequest = SignupRequest(email: email, name: email, password: password);
-      SignupResponse signupResponse = await _signup(signupRequest);
+      SignupResponse signupResponse = await FetchUtil.signup(signupRequest);
+
+      LoginRequest loginRequest = LoginRequest(email: email, password: password);
+      LoginResponse loginResponse = await FetchUtil.login(loginRequest);
+      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+      sharedPreferences.setString(Constants.tokenValue, "${loginResponse.tokenType} ${loginResponse.accessToken}");
+      logger.d(signupResponse);
       yield SignupState.success();
     } on ApiErrorException catch (e) {
       logger.e(e);
       yield SignupState.failure(e.apiError);
+    } on Exception catch (e) {
+      logger.e(e);
+      yield SignupState.failure(ApiError.fromMessage("Unexpected error occured"));
     }
   }
-
-  Future<SignupResponse> _signup(SignupRequest signupRequest) async {
-    String url = Constants.signupUrl;
-    Map<String, dynamic> signupRequestJson = signupRequest.toJson();
-    String signupRequestJsonStr = json.encode(signupRequestJson);
-    final response = await http.post(
-      url,
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: signupRequestJsonStr
-    ).timeout(const Duration(seconds: 30));
-    Map<String, dynamic> signupResponseJson = json.decode(response.body);
-    if (response.statusCode == 201) {
-      print("Location ${response.headers["Location"]}");
-      return SignupResponse.fromJson(signupResponseJson);
-    } else {
-      ApiErrorWrapper apiErrorWrapper = ApiErrorWrapper.fromJson(signupResponseJson);
-      throw ApiErrorException(apiError: apiErrorWrapper.apierror);
-    }
-  }  
 }

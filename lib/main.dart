@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-03 20:56:45 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-07 22:32:44
+ * @Last Modified time: 2019-10-12 23:07:24
  */
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +12,9 @@ import './authentication/bloc/bloc.dart';
 import './splash_screen.dart';
 import './simple_bloc_delegate.dart';
 import './login/ui/login_screen.dart';
-import 'constants.dart' as Constants;
+import './murphy/ui/murphy_screen.dart';
+import './murphy/tab/bloc/bloc.dart';
+import './murphy/calculation/bloc/bloc.dart';
 
 void main() {
   BlocSupervisor.delegate = SimpleBlocDelegate();
@@ -26,17 +28,30 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home:
-        BlocBuilder<AuthenticationBloc, AuthenticationState>(
+    return MaterialApp(
+        home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
             builder: (context, state) {
-      if (state is Uninitialized) {
-        return SplashScreen();
-      }
-      if (state is Unauthenticated) {
-        return LoginScreen();
-      }
+          if (state is Uninitialized) {
+            return SplashScreen();
+          }
 
-      return null;
-    }), theme: ThemeData(primaryColor: Color(0xFF6C65EA)));
+          if (state is Unauthenticated) {
+            return LoginScreen();
+          }
+
+          if (state is Authenticated) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider<TabBloc>(builder: (context) => TabBloc()),
+                BlocProvider<CalculationBloc>(
+                    builder: (context) => CalculationBloc())
+              ],
+              child: MurhpyScreen(),
+            );
+          }
+
+          return null;
+        }),
+        theme: ThemeData(primaryColor: Color(0xFF6C65EA)));
   }
 }

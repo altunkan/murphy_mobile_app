@@ -2,13 +2,13 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-07 21:45:26 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-08 22:03:04
+ * @Last Modified time: 2019-10-12 18:16:19
  */
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 
+import '../../main.dart';
 import '../bloc/bloc.dart';
 import '../../authentication/bloc/bloc.dart';
 import '../../constants.dart' as Constants;
@@ -19,6 +19,9 @@ class SignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Register"),
+      ),
       body: BlocProvider<SignupBloc>(
         builder: (context) => SignupBloc(),
         child: SignupForm(),
@@ -37,14 +40,11 @@ class SignupForm extends StatefulWidget {
 class _SignupFormState extends State<SignupForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _retypePasswordController =
-      TextEditingController();
+  final TextEditingController _retypePasswordController = TextEditingController();
   SignupBloc _signupBloc;
 
-  bool get isPopulated =>
-      _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
-  bool isRegisterButtonEnabled(SignupState state) =>
-      state.isFormValid && isPopulated && !state.isSubmitting;
+  bool get isPopulated => _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+  bool isRegisterButtonEnabled(SignupState state) => state.isFormValid && isPopulated && !state.isSubmitting;
 
   @override
   void initState() {
@@ -63,7 +63,6 @@ class _SignupFormState extends State<SignupForm> {
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              // return object of type Dialog
               return AlertDialog(
                 title: new Text("Error"),
                 content: new Text(state.apiError.message),
@@ -78,105 +77,115 @@ class _SignupFormState extends State<SignupForm> {
               );
             },
           );
-        } else if (state.isSubmitting) {
-          Center(
-            child: CircularProgressIndicator(),
-          );
         } else if (state.isSuccess) {
           BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedIn());
+          Navigator.of(context);
+          Navigator.push(context, MaterialPageRoute(builder: (context) => App()));
         }
       },
       child: BlocBuilder<SignupBloc, SignupState>(
         builder: (context, state) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text("Register"),
-            ),
-            body: SingleChildScrollView(
-                          child: Container(
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Form(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 20.0),
-                        child: Column(
-                          children: <Widget>[
-                            TextFormField(
-                              decoration: InputDecoration(
-                                  labelText: "Email",
-                                  labelStyle: Constants.loginUiLabelStyle,
-                                  suffixIcon: Icon(Icons.email, size: 18)),
-                              controller: _emailController,
-                              autocorrect: false,
-                              autovalidate: true,
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (_) {
-                                return !state.isEmailValid
-                                    ? 'Invalid Email'
-                                    : null;
-                              },
-                            ),
-                            TextFormField(
+          if (state.isSubmitting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          return SingleChildScrollView(
+            child: Container(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Form(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      child: Column(
+                        children: <Widget>[
+                          TextFormField(
+                            decoration: InputDecoration(
+                                labelText: "Email",
+                                labelStyle: Constants.loginUiLabelStyle,
+                                suffixIcon: Icon(Icons.email, size: 18)),
+                            controller: _emailController,
+                            autocorrect: false,
+                            autovalidate: true,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (_) {
+                              return !state.isEmailValid ? 'Invalid Email' : null;
+                            },
+                          ),
+                          TextFormField(
+                            obscureText: true,
+                            autocorrect: false,
+                            autovalidate: true,
+                            controller: _passwordController,
+                            decoration: InputDecoration(
+                                labelText: "Password",
+                                labelStyle: Constants.loginUiLabelStyle,
+                                suffixIcon: Icon(Icons.lock, size: 18)),
+                            validator: (_) {
+                              return !state.isPasswordValid ? "Passwords do not match" : null;
+                            },
+                          ),
+                          TextFormField(
                               obscureText: true,
                               autocorrect: false,
                               autovalidate: true,
-                              controller: _passwordController,
+                              controller: _retypePasswordController,
                               decoration: InputDecoration(
-                                  labelText: "Password",
+                                  labelText: "Re-type Password",
                                   labelStyle: Constants.loginUiLabelStyle,
                                   suffixIcon: Icon(Icons.lock, size: 18)),
                               validator: (_) {
-                                return !state.isPasswordValid
-                                    ? "Passwords do not match"
-                                    : null;
-                              },
-                            ),
-                            TextFormField(
-                                obscureText: true,
-                                autocorrect: false,
-                                autovalidate: true,
-                                controller: _retypePasswordController,
-                                decoration: InputDecoration(
-                                    labelText: "Retype Password",
-                                    labelStyle: Constants.loginUiLabelStyle,
-                                    suffixIcon: Icon(Icons.lock, size: 18)),
-                                validator: (_) {
-                                  return !state.isPasswordValid
-                                      ? "Passwords do not match"
-                                      : null;
-                                }),
-                          ],
-                        ),
+                                return !state.isPasswordValid ? "Passwords do not match" : null;
+                              }),
+                        ],
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Expanded(
-                          child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 20.0, right: 20.0, top: 10.0),
-                              child: SignInButtonBuilder(
-                                text: 'Register',
-                                icon: Icons.person,
-                                backgroundColor: Constants.mainColor,
-                                onPressed: () {
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Expanded(
+                        child: Padding(
+                            padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
+                            child: Material(
+                              color: Constants.mainColor,
+                              child: InkWell(
+                                onTap: () {
                                   if (isRegisterButtonEnabled(state)) {
                                     _onFormSubmitted();
                                   }
                                 },
-                              )),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  height: 40,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: <Widget>[
+                                      Icon(
+                                        Icons.person_add,
+                                        color: Colors.white,
+                                        size: Constants.loginUiIconSize + 4,
+                                      ),
+                                      SizedBox(width: 10.0),
+                                      Text(
+                                        "Register",
+                                        style: Constants.loginUiButtonTextStyle,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )),
+                      ),
+                    ],
+                  )
+                ],
               ),
             ),
-            resizeToAvoidBottomInset: false,
           );
         },
       ),
@@ -198,19 +207,16 @@ class _SignupFormState extends State<SignupForm> {
   }
 
   void _onFormSubmitted() {
-    _signupBloc.dispatch(Submitted(
-        email: _emailController.text, password: _passwordController.text));
+    _signupBloc.dispatch(Submitted(email: _emailController.text, password: _passwordController.text));
   }
 
   void _onPasswordChanged() {
-    _signupBloc.dispatch(PasswordChanged(
-        password: _passwordController.text,
-        retypePassword: _retypePasswordController.text));
+    _signupBloc
+        .dispatch(PasswordChanged(password: _passwordController.text, retypePassword: _retypePasswordController.text));
   }
 
   void _onRetypePasswordChanged() {
-    _signupBloc.dispatch(RetypePasswordChanged(
-        password: _passwordController.text,
-        retypePassword: _retypePasswordController.text));
+    _signupBloc.dispatch(
+        RetypePasswordChanged(password: _passwordController.text, retypePassword: _retypePasswordController.text));
   }
 }
