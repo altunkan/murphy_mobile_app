@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-03 19:35:56 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-12 13:54:54
+ * @Last Modified time: 2019-10-17 18:32:56
  */
 
 import 'dart:async';
@@ -16,7 +16,8 @@ import '../model/user.dart';
 import '../../constants.dart' as Constants;
 import '../../util/exception/unauthorized_exception.dart';
 
-class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
+class AuthenticationBloc
+    extends Bloc<AuthenticationEvent, AuthenticationState> {
   final logger = Logger();
 
   @override
@@ -37,8 +38,19 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
   Stream<AuthenticationState> _mapAppStartedToState() async* {
     try {
-      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
       String token = sharedPreferences.get(Constants.tokenValue);
+      if (token == null) {
+        yield Unauthenticated();
+        return;
+      }
+
+      if (token.isEmpty) {
+        yield Unauthenticated();
+        return;
+      }
+
       logger.d(token);
       User user = await FetchUtil.getUser(token);
       yield Authenticated(user: user);
@@ -50,7 +62,8 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
   Stream<AuthenticationState> _mapLoggedInToState() async* {
     try {
-      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
       String token = sharedPreferences.get(Constants.tokenValue);
       logger.d(token);
       User user = await FetchUtil.getUser(token);

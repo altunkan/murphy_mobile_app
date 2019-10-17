@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-12 13:42:25 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-12 22:40:59
+ * @Last Modified time: 2019-10-17 18:36:37
  */
 
 import 'dart:convert';
@@ -32,7 +32,7 @@ class FetchUtil {
         .post(url,
             headers: {"Content-Type": "application/json"},
             body: loginRequestJsonStr)
-        .timeout(const Duration(seconds: 30));
+        .timeout(const Duration(seconds: 10));
     await Future.delayed(const Duration(seconds: 1));
     Map<String, dynamic> loginResponseJson = json.decode(response.body);
     if (response.statusCode == 200) {
@@ -66,10 +66,6 @@ class FetchUtil {
 
   static Future<User> getUser(String token) async {
     String url = Constants.userUrl;
-    if (token.isEmpty) {
-      throw UnauthorizedException(message: "You are not logged in");
-    }
-
     Map<String, String> headers = {
       "Content-Type": "application/json",
       Constants.tokenName: "$token"

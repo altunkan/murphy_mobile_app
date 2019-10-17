@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-03 20:56:45 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-12 23:07:24
+ * @Last Modified time: 2019-10-17 21:32:57
  */
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,8 +43,8 @@ class App extends StatelessWidget {
             return MultiBlocProvider(
               providers: [
                 BlocProvider<TabBloc>(builder: (context) => TabBloc()),
-                BlocProvider<CalculationBloc>(
-                    builder: (context) => CalculationBloc())
+                //BlocProvider<CalculationBloc>(
+                //builder: (context) => CalculationBloc())
               ],
               child: MurhpyScreen(),
             );

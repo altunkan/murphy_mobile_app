@@ -2,13 +2,14 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-09 23:03:52 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-12 18:25:45
+ * @Last Modified time: 2019-10-16 22:57:55
  */
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart';
+import 'package:murphy_mobile_app/murphy/event/ui/event_screen.dart';
 
 import '../../authentication/bloc/bloc.dart';
 import '../../authentication/model/user.dart';
@@ -17,24 +18,22 @@ import '../tab/model/app_tab.dart';
 import '../calculation/ui/calculation_screen.dart';
 
 class MurhpyScreen extends StatelessWidget {
+  final List<Widget> screens = const [CalculationScreen(), EventScreen()];
+
   const MurhpyScreen({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final AuthenticationBloc authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
+    final AuthenticationBloc authenticationBloc =
+        BlocProvider.of<AuthenticationBloc>(context);
     final TabBloc tabBloc = BlocProvider.of<TabBloc>(context);
-    User user;
     if (authenticationBloc.currentState is Authenticated) {
-      Authenticated authenticated = authenticationBloc.currentState;
-      user = authenticated.user;
+      //Authenticated authenticated = authenticationBloc.currentState;
+      //User user = authenticated.user;
     }
 
     return BlocBuilder<TabBloc, AppTab>(
       builder: (context, activeTab) {
-        Widget tabWidget;
-        if (activeTab == AppTab.calculate) {
-          tabWidget = CalculationScreen();
-        }
         return Scaffold(
           appBar: AppBar(
             title: Text("Try a Murphy"),
@@ -51,7 +50,10 @@ class MurhpyScreen extends StatelessWidget {
               )
             ],
           ),
-          body: tabWidget,
+          body: IndexedStack(
+            index: activeTab.index,
+            children: screens,
+          ),
           bottomNavigationBar: TabSelector(
             activeTab: activeTab,
             onTabSelected: (tab) {
@@ -68,7 +70,9 @@ class TabSelector extends StatelessWidget {
   final AppTab activeTab;
   final Function(AppTab) onTabSelected;
 
-  const TabSelector({Key key, @required this.activeTab, @required this.onTabSelected}) : super(key: key);
+  const TabSelector(
+      {Key key, @required this.activeTab, @required this.onTabSelected})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-10 22:20:15 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-12 22:58:16
+ * @Last Modified time: 2019-10-16 23:49:58
  */
 import 'dart:async';
 import 'package:bloc/bloc.dart';

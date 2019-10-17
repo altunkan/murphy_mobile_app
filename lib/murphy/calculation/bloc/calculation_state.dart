@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-10 20:48:30 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-12 22:50:01
+ * @Last Modified time: 2019-10-16 23:49:48
  */
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';

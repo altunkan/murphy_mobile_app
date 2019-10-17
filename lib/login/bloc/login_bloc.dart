@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-03 20:56:48 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-12 13:45:26
+ * @Last Modified time: 2019-10-17 18:40:17
  */
 import 'dart:async';
 import 'package:bloc/bloc.dart';
@@ -64,17 +64,25 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   }) async* {
     yield LoginState.loading();
     try {
-      LoginRequest loginRequest = LoginRequest(email: email, password: password);
+      LoginRequest loginRequest =
+          LoginRequest(email: email, password: password);
       LoginResponse loginResponse = await FetchUtil.login(loginRequest);
-      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      sharedPreferences.setString(Constants.tokenValue, "${loginResponse.tokenType} ${loginResponse.accessToken}");
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      sharedPreferences.setString(Constants.tokenValue,
+          "${loginResponse.tokenType} ${loginResponse.accessToken}");
       yield LoginState.success();
     } on ApiErrorException catch (e) {
       logger.e(e);
       yield LoginState.failure(e.apiError);
+    } on TimeoutException catch (e) {
+      logger.e(e);
+      yield LoginState.failure(
+          ApiError.fromMessage("Server is not responding.."));
     } on Exception catch (e) {
       logger.e(e);
-      yield LoginState.failure(ApiError.fromMessage("Unexpected error occured"));
+      yield LoginState.failure(
+          ApiError.fromMessage("Unexpected error occured"));
     }
   }
 }
