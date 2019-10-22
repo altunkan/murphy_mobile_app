@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-03 20:56:36 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-17 22:20:45
+ * @Last Modified time: 2019-10-20 19:41:26
  */
 
 import 'package:flutter/material.dart';
@@ -21,8 +21,8 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
         elevation: 0.0,
+        title: Text("Login"),
       ),
       body: BlocProvider<LoginBloc>(
         builder: (context) => LoginBloc(),
@@ -42,6 +42,7 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final double _padding = 16.0;
   LoginBloc _loginBloc;
 
   bool get isPopulated =>
@@ -85,214 +86,246 @@ class _LoginFormState extends State<LoginForm> {
       },
       child: BlocBuilder<LoginBloc, LoginState>(
         builder: (context, state) {
-          if (state.isSubmitting) {
+          if (state.isSubmitting || state.isSuccess) {
             return Center(
               child: CircularProgressIndicator(),
             );
           }
 
-          return SingleChildScrollView(
-            child: Container(
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+          return ListView(
+            padding: const EdgeInsets.only(top: 30),
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: _padding),
+                child: Form(
+                  child: Column(
                     children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0, bottom: 60.0),
-                        child: new Text(
-                          "Murphy's Law",
-                          style: new TextStyle(fontSize: 30.0),
-                        ),
-                      )
+                      TextFormField(
+                        cursorColor: Theme.of(context).primaryColor,
+                        controller: _emailController,
+                        autocorrect: false,
+                        autovalidate: true,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (_) {
+                          return !state.isEmailValid ? 'Invalid Email' : null;
+                        },
+                        decoration: InputDecoration(
+                            labelText: "Email",
+                            prefixIcon: Icon(
+                              Icons.email,
+                              color: Theme.of(context).primaryColor,
+                            )),
+                      ),
+                      TextFormField(
+                        obscureText: true,
+                        autocorrect: false,
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                            labelText: "Password",
+                            labelStyle: Constants.loginUiLabelStyle,
+                            prefixIcon: Icon(Icons.lock,
+                                color: Theme.of(context).primaryColor)),
+                      ),
                     ],
                   ),
-                  Form(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 20.0),
-                      child: Column(
+                ),
+              ),
+              SizedBox(height: 30),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: _padding),
+                child: Material(
+                  color: Constants.mainColor,
+                  borderRadius: BorderRadius.all(Radius.circular(100)),
+                  child: InkWell(
+                    borderRadius: BorderRadius.all(Radius.circular(100)),
+                    onTap: () {
+                      if (isLoginButtonEnabled(state)) {
+                        _onFormSubmitted();
+                      }
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      height: 40,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          TextFormField(
-                            decoration: InputDecoration(
-                                labelText: "Email",
-                                labelStyle: Constants.loginUiLabelStyle,
-                                suffixIcon: Icon(Icons.email, size: 18)),
-                            controller: _emailController,
-                            autocorrect: false,
-                            autovalidate: true,
-                            keyboardType: TextInputType.emailAddress,
-                            validator: (_) {
-                              return !state.isEmailValid
-                                  ? 'Invalid Email'
-                                  : null;
-                            },
+                          Icon(
+                            Icons.email,
+                            color: Colors.white,
+                            size: Constants.loginUiIconSize,
                           ),
-                          TextFormField(
-                            obscureText: true,
-                            autocorrect: false,
-                            controller: _passwordController,
-                            decoration: InputDecoration(
-                                labelText: "Password",
-                                labelStyle: Constants.loginUiLabelStyle,
-                                suffixIcon: Icon(Icons.lock, size: 18)),
+                          SizedBox(width: 10.0),
+                          Text(
+                            "Sign in with Email",
+                            style: Constants.loginUiButtonTextStyle,
                           ),
                         ],
                       ),
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      Flexible(
-                        child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 20.0, right: 20.0, top: 10.0),
-                            child: Material(
-                              color: Constants.mainColor,
-                              child: InkWell(
-                                onTap: () {
-                                  if (isLoginButtonEnabled(state)) {
-                                    _onFormSubmitted();
-                                  }
-                                },
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  height: 40,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.email,
-                                        color: Colors.white,
-                                        size: Constants.loginUiIconSize,
-                                      ),
-                                      SizedBox(width: 10.0),
-                                      Text(
-                                        "Sign in with Email",
-                                        style: Constants.loginUiButtonTextStyle,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            )),
+                ),
+              ),
+              SizedBox(height: 15),
+              Center(
+                child: GestureDetector(
+                  child: Text("Forgot your password?",
+                      style: TextStyle(color: Theme.of(context).primaryColor)),
+                ),
+              ),
+              SizedBox(height: 50),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: _padding),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Divider(
+                            //thickness: 1.0,
+                            color: Theme.of(context).primaryColor),
                       ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Flexible(
-                        child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 20.0, right: 5.0, top: 10.0),
-                            child: Material(
-                              color: Color(0xFF3B5998),
-                              child: InkWell(
-                                onTap: () {},
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  height: 40,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      Icon(
-                                        FontAwesomeIcons.facebookF,
-                                        color: Colors.white,
-                                        size: Constants.loginUiIconSize,
-                                      ),
-                                      SizedBox(width: 10.0),
-                                      Text(
-                                        "Facebook",
-                                        style: Constants.loginUiButtonTextStyle,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            )),
-                      ),
-                      Flexible(
-                        child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 10.0, right: 20.0, top: 10.0),
-                            child: Material(
-                              color: Color(0xFFDD4B39),
-                              child: InkWell(
-                                onTap: () {},
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  height: 40,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      Icon(
-                                        FontAwesomeIcons.google,
-                                        color: Colors.white,
-                                        size: Constants.loginUiIconSize,
-                                      ),
-                                      SizedBox(width: 10.0),
-                                      Text(
-                                        "Gmail",
-                                        style: Constants.loginUiButtonTextStyle,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            )),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: new Text(
-                          "Forgot Password",
-                          style: Constants.loginUiTextStyle,
+                    ),
+                    Text("Or connect with",
+                        style:
+                            TextStyle(color: Theme.of(context).primaryColor)),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Divider(
+                          //thickness: 1.0,
+                          color: Theme.of(context).primaryColor,
                         ),
                       ),
-                    ],
-                  ),
-                  Flexible(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 18.0),
-                          child: GestureDetector(
-                            child: new Text(
-                              "Sign Up",
-                              style: Constants.loginUiTextStyle,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 15),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: _padding),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Expanded(
+                      child: Material(
+                        color: Color(0xFF3B5998),
+                        borderRadius: BorderRadius.all(Radius.circular(100)),
+                        child: InkWell(
+                          borderRadius: BorderRadius.all(Radius.circular(100)),
+                          onTap: () {},
+                          child: Container(
+                            alignment: Alignment.center,
+                            height: 40,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(
+                                  FontAwesomeIcons.facebookF,
+                                  color: Colors.white,
+                                  size: Constants.loginUiIconSize,
+                                ),
+                                SizedBox(width: 10.0),
+                                Text(
+                                  "Facebook",
+                                  style: Constants.loginUiButtonTextStyle,
+                                ),
+                              ],
                             ),
-                            onTap: () {
-                              Navigator.of(context);
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return SignupScreen();
-                              }));
-                            },
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  )
-                ],
+                    SizedBox(height: 0, width: 10),
+                    Expanded(
+                      child: Material(
+                        color: Color(0xFFDD4B39),
+                        borderRadius: BorderRadius.all(Radius.circular(100)),
+                        child: InkWell(
+                          borderRadius: BorderRadius.all(Radius.circular(100)),
+                          onTap: () {},
+                          child: Container(
+                            alignment: Alignment.center,
+                            height: 40,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(
+                                  FontAwesomeIcons.google,
+                                  color: Colors.white,
+                                  size: Constants.loginUiIconSize,
+                                ),
+                                SizedBox(width: 10.0),
+                                Text(
+                                  "Gmail",
+                                  style: Constants.loginUiButtonTextStyle,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
-            ),
+              SizedBox(
+                height: 80,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: _padding),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Divider(
+                            //thickness: 1.0,
+                            color: Theme.of(context).primaryColor),
+                      ),
+                    ),
+                    Text("New user?",
+                        style:
+                            TextStyle(color: Theme.of(context).primaryColor)),
+                    SizedBox(height: 0, width: 10),
+                    GestureDetector(
+                        child: Container(
+                          child: Text(
+                            "Sign Up",
+                            style: TextStyle(
+                                color: Constants.mainColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.of(context);
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return SignupScreen();
+                          }));
+                        }),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Divider(
+                          //thickness: 1.0,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              )
+            ],
           );
         },
       ),

@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-03 20:56:45 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-17 21:32:57
+ * @Last Modified time: 2019-10-22 13:58:02
  */
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +15,7 @@ import './login/ui/login_screen.dart';
 import './murphy/ui/murphy_screen.dart';
 import './murphy/tab/bloc/bloc.dart';
 import './murphy/calculation/bloc/bloc.dart';
+import './murphy/event/bloc/bloc.dart';
 
 void main() {
   BlocSupervisor.delegate = SimpleBlocDelegate();
@@ -40,18 +41,29 @@ class App extends StatelessWidget {
           }
 
           if (state is Authenticated) {
-            return MultiBlocProvider(
-              providers: [
-                BlocProvider<TabBloc>(builder: (context) => TabBloc()),
-                //BlocProvider<CalculationBloc>(
-                //builder: (context) => CalculationBloc())
-              ],
-              child: MurhpyScreen(),
-            );
+            return MultiBlocProvider(providers: [
+              BlocProvider<TabBloc>(builder: (context) => TabBloc()),
+              BlocProvider<CalculationBloc>(
+                  builder: (context) => CalculationBloc()),
+              BlocProvider<EventBloc>(builder: (context) => EventBloc())
+            ], child: MurphyScreen());
           }
 
           return null;
         }),
         theme: ThemeData(primaryColor: Color(0xFF6C65EA)));
+  }
+}
+
+class Test extends StatelessWidget {
+  const Test({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Center(
+        child: Text("test"),
+      ),
+    );
   }
 }

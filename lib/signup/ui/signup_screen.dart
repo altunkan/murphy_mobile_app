@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-07 21:45:26 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-12 18:16:19
+ * @Last Modified time: 2019-10-20 19:39:02
  */
 
 import 'package:flutter/material.dart';
@@ -40,11 +40,14 @@ class SignupForm extends StatefulWidget {
 class _SignupFormState extends State<SignupForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _retypePasswordController = TextEditingController();
+  final TextEditingController _retypePasswordController =
+      TextEditingController();
   SignupBloc _signupBloc;
 
-  bool get isPopulated => _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
-  bool isRegisterButtonEnabled(SignupState state) => state.isFormValid && isPopulated && !state.isSubmitting;
+  bool get isPopulated =>
+      _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+  bool isRegisterButtonEnabled(SignupState state) =>
+      state.isFormValid && isPopulated && !state.isSubmitting;
 
   @override
   void initState() {
@@ -80,12 +83,13 @@ class _SignupFormState extends State<SignupForm> {
         } else if (state.isSuccess) {
           BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedIn());
           Navigator.of(context);
-          Navigator.push(context, MaterialPageRoute(builder: (context) => App()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => App()));
         }
       },
       child: BlocBuilder<SignupBloc, SignupState>(
         builder: (context, state) {
-          if (state.isSubmitting) {
+          if (state.isSubmitting || state.isSuccess) {
             return Center(
               child: CircularProgressIndicator(),
             );
@@ -99,20 +103,24 @@ class _SignupFormState extends State<SignupForm> {
                 children: <Widget>[
                   Form(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 20.0),
                       child: Column(
                         children: <Widget>[
                           TextFormField(
                             decoration: InputDecoration(
                                 labelText: "Email",
                                 labelStyle: Constants.loginUiLabelStyle,
-                                suffixIcon: Icon(Icons.email, size: 18)),
+                                prefixIcon: Icon(Icons.email,
+                                    color: Theme.of(context).primaryColor)),
                             controller: _emailController,
                             autocorrect: false,
                             autovalidate: true,
                             keyboardType: TextInputType.emailAddress,
                             validator: (_) {
-                              return !state.isEmailValid ? 'Invalid Email' : null;
+                              return !state.isEmailValid
+                                  ? 'Invalid Email'
+                                  : null;
                             },
                           ),
                           TextFormField(
@@ -123,9 +131,12 @@ class _SignupFormState extends State<SignupForm> {
                             decoration: InputDecoration(
                                 labelText: "Password",
                                 labelStyle: Constants.loginUiLabelStyle,
-                                suffixIcon: Icon(Icons.lock, size: 18)),
+                                prefixIcon: Icon(Icons.lock,
+                                    color: Theme.of(context).primaryColor)),
                             validator: (_) {
-                              return !state.isPasswordValid ? "Passwords do not match" : null;
+                              return !state.isPasswordValid
+                                  ? "Passwords do not match"
+                                  : null;
                             },
                           ),
                           TextFormField(
@@ -136,9 +147,12 @@ class _SignupFormState extends State<SignupForm> {
                               decoration: InputDecoration(
                                   labelText: "Re-type Password",
                                   labelStyle: Constants.loginUiLabelStyle,
-                                  suffixIcon: Icon(Icons.lock, size: 18)),
+                                  prefixIcon: Icon(Icons.lock,
+                                      color: Theme.of(context).primaryColor)),
                               validator: (_) {
-                                return !state.isPasswordValid ? "Passwords do not match" : null;
+                                return !state.isPasswordValid
+                                    ? "Passwords do not match"
+                                    : null;
                               }),
                         ],
                       ),
@@ -149,10 +163,15 @@ class _SignupFormState extends State<SignupForm> {
                     children: <Widget>[
                       Expanded(
                         child: Padding(
-                            padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
+                            padding: const EdgeInsets.only(
+                                left: 20.0, right: 20.0, top: 10.0),
                             child: Material(
                               color: Constants.mainColor,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(100)),
                               child: InkWell(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(100)),
                                 onTap: () {
                                   if (isRegisterButtonEnabled(state)) {
                                     _onFormSubmitted();
@@ -163,7 +182,8 @@ class _SignupFormState extends State<SignupForm> {
                                   height: 40,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: <Widget>[
                                       Icon(
                                         Icons.person_add,
@@ -207,16 +227,19 @@ class _SignupFormState extends State<SignupForm> {
   }
 
   void _onFormSubmitted() {
-    _signupBloc.dispatch(Submitted(email: _emailController.text, password: _passwordController.text));
+    _signupBloc.dispatch(Submitted(
+        email: _emailController.text, password: _passwordController.text));
   }
 
   void _onPasswordChanged() {
-    _signupBloc
-        .dispatch(PasswordChanged(password: _passwordController.text, retypePassword: _retypePasswordController.text));
+    _signupBloc.dispatch(PasswordChanged(
+        password: _passwordController.text,
+        retypePassword: _retypePasswordController.text));
   }
 
   void _onRetypePasswordChanged() {
-    _signupBloc.dispatch(
-        RetypePasswordChanged(password: _passwordController.text, retypePassword: _retypePasswordController.text));
+    _signupBloc.dispatch(RetypePasswordChanged(
+        password: _passwordController.text,
+        retypePassword: _retypePasswordController.text));
   }
 }

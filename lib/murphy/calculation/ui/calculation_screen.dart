@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-10 22:21:22 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-17 22:12:36
+ * @Last Modified time: 2019-10-22 14:16:47
  */
 
 import 'package:flutter/material.dart';
@@ -21,10 +21,7 @@ class CalculationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      builder: (context) => CalculationBloc(),
-      child: CalculationForm(),
-    );
+    return CalculationForm(key: key);
   }
 }
 
@@ -226,7 +223,8 @@ class _CalculationFormState extends State<CalculationForm>
                           decoration: InputDecoration(
                             labelText: "Event",
                             labelStyle: Constants.loginUiLabelStyle,
-                            suffixIcon: Icon(Icons.note, size: 18),
+                            prefixIcon: Icon(Icons.note,
+                                color: Theme.of(context).primaryColor),
                           ),
                           keyboardType: TextInputType.text,
                           controller: _eventNameController,
@@ -255,7 +253,8 @@ class _CalculationFormState extends State<CalculationForm>
                                 decoration: InputDecoration(
                                   labelText: "Event Date",
                                   labelStyle: Constants.loginUiLabelStyle,
-                                  suffixIcon: Icon(Icons.date_range, size: 18),
+                                  prefixIcon: Icon(Icons.date_range,
+                                      color: Theme.of(context).primaryColor),
                                 )),
                           ),
                         )
@@ -449,9 +448,9 @@ class _CalculationFormState extends State<CalculationForm>
                         ]),
                     Material(
                       color: Constants.mainColor,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.all(Radius.circular(100)),
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.all(Radius.circular(100)),
                         onTap: () {
                           //if (isCalculateButtonEnabled()) {
                           _onFormSubmitted();
@@ -527,9 +526,11 @@ class _CalculationFormState extends State<CalculationForm>
                             SizedBox(height: 16),
                             Material(
                               color: Constants.mainColor,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(100)),
                               child: InkWell(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(100)),
                                 onTap: () {
                                   _calculationBloc.dispatch(AddCalculation());
                                 },
