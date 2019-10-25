@@ -2,14 +2,12 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-10 22:20:15 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-16 23:49:58
+ * @Last Modified time: 2019-10-22 20:43:01
  */
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 import './bloc.dart';
 import '../model/calculation_request.dart';

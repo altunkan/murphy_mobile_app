@@ -2,12 +2,11 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-09 23:03:52 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-22 14:21:19
+ * @Last Modified time: 2019-10-22 20:59:39
  */
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:murphy_mobile_app/murphy/event/ui/event_screen.dart';
 
@@ -17,31 +16,53 @@ import '../tab/bloc/bloc.dart';
 import '../tab/model/app_tab.dart';
 import '../calculation/ui/calculation_screen.dart';
 import '../event/bloc/bloc.dart';
+import '../calculation/bloc/bloc.dart';
 
-class MurphyScreen extends StatelessWidget {
-  final List<Widget> screens = const [CalculationScreen(), EventScreen()];
+class MurphyScreen extends StatefulWidget {
+  MurphyScreen({Key key}) : super(key: key);
 
-  const MurphyScreen({Key key}) : super(key: key);
+  _MurphyScreenState createState() => _MurphyScreenState();
+}
+
+class _MurphyScreenState extends State<MurphyScreen> {
+  final List<Widget> _screens = const [CalculationScreen(), EventScreen()];
+  AuthenticationBloc _authenticationBloc;
+  TabBloc _tabBloc;
+  User _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
+    _tabBloc = BlocProvider.of<TabBloc>(context);
+    _user = (_authenticationBloc.state as Authenticated).user;
+  }
+
+  @override
+  void dispose() {
+    BlocProvider.of<CalculationBloc>(context).close();
+    BlocProvider.of<EventBloc>(context).close();
+    _tabBloc.close();
+    _authenticationBloc.close();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final AuthenticationBloc authenticationBloc =
-        BlocProvider.of<AuthenticationBloc>(context);
-    final TabBloc tabBloc = BlocProvider.of<TabBloc>(context);
-    Authenticated authenticated = authenticationBloc.currentState;
-    User user = authenticated.user;
-
     return BlocListener<TabBloc, AppTab>(
       listener: (context, state) {
         if (state == AppTab.event) {
-          BlocProvider.of<EventBloc>(context).dispatch(ListEvent(user.email));
+          BlocProvider.of<EventBloc>(context).add(ListEvent(_user.email));
         }
       },
       child: BlocBuilder<TabBloc, AppTab>(
         builder: (context, activeTab) {
           return Scaffold(
             appBar: AppBar(
-              title: Text("Try a Murphy"),
+              title: activeTab == AppTab.calculate
+                  ? Text("Try a Murphy")
+                  : Text("Events"),
               actions: <Widget>[
                 IconButton(
                   icon: Icon(Icons.person),
@@ -50,14 +71,14 @@ class MurphyScreen extends StatelessWidget {
                 IconButton(
                   icon: Icon(Icons.exit_to_app),
                   onPressed: () {
-                    authenticationBloc.dispatch(LoggedOut());
+                    _authenticationBloc.add(LoggedOut());
                   },
                 )
               ],
             ),
             body: IndexedStack(
               index: activeTab.index,
-              children: screens,
+              children: _screens,
             ),
             /*
             body: activeTab == AppTab.calculate
@@ -67,7 +88,7 @@ class MurphyScreen extends StatelessWidget {
             bottomNavigationBar: TabSelector(
               activeTab: activeTab,
               onTabSelected: (tab) {
-                tabBloc.dispatch(UpdateTab(tab));
+                _tabBloc.add(UpdateTab(tab));
               },
             ),
           );

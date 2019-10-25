@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-10 22:21:22 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-22 14:16:47
+ * @Last Modified time: 2019-10-22 20:40:48
  */
 
 import 'package:flutter/material.dart';
@@ -85,42 +85,36 @@ class _CalculationFormState extends State<CalculationForm>
   }
 
   Future<Null> _displayParameterInfo(String parameter) async {
-    String title;
     String question;
     String description;
 
     switch (parameter) {
       case "urgency":
         {
-          title = "Urgency";
           question = "How urgent is this task?";
           description = "1 = sometime this year, maybe, 9 = right away";
         }
         break;
       case "importance":
         {
-          title = "Importance";
           question = "How important is this task?";
           description = "1 = complete waste of time, 9 = absolutely critical";
         }
         break;
       case "complexity":
         {
-          title = "Complexity";
           question = "How complex is this task?";
           description = "1 = a child could do it, 9 = brain surgery";
         }
         break;
       case "skill":
         {
-          title = "Skill";
           question = "What is your skill level for this?";
           description = "1 = complete klutz, 9 = expert";
         }
         break;
       case "frequency":
         {
-          title = "Frequency";
           question = "How often do you have to do this?";
           description = "1 = just once, 9 = every day";
         }
@@ -532,7 +526,7 @@ class _CalculationFormState extends State<CalculationForm>
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(100)),
                                 onTap: () {
-                                  _calculationBloc.dispatch(AddCalculation());
+                                  _calculationBloc.add(AddCalculation());
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -584,7 +578,7 @@ class _CalculationFormState extends State<CalculationForm>
           complexity: _complexity.round(),
           skill: _skill.round(),
           frequency: _frequencey.round());
-      _calculationBloc.dispatch(Calculate(calculationRequest));
+      _calculationBloc.add(Calculate(calculationRequest));
     } else {
       _autoValidate = true;
     }

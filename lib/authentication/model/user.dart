@@ -12,10 +12,10 @@ part 'user.g.dart';
 
 @JsonSerializable()
 class User extends Equatable {
-  int userId;
-  String email;
+  final int userId;
+  final String email;
 
-  User({this.userId, this.email}) : super([userId]);
+  User({this.userId, this.email});
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
   Map<String, dynamic> toJson() => _$UserToJson(this);
@@ -29,4 +29,7 @@ class User extends Equatable {
       }
     """;
   }
+
+  @override
+  List<Object> get props => [userId, email];
 }

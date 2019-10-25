@@ -2,12 +2,11 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-12 13:42:25 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-22 16:37:33
+ * @Last Modified time: 2019-10-22 21:46:40
  */
 
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
@@ -150,11 +149,13 @@ class FetchUtil {
   }
 
   static Future<Event> updateEventStatus(
-      String token, String calculationId, EventStatus eventStatus) async {
+      String token, int calculationId, EventStatus eventStatus) async {
+    String calculationIdStr = calculationId.toString();
     String eventStatusStr = eventStatus
         .toString()
         .substring(eventStatus.toString().indexOf(".") + 1);
-    String url = "${Constants.updateEventUrl}/$calculationId/$eventStatusStr";
+    String url =
+        "${Constants.updateEventUrl}/$calculationIdStr/$eventStatusStr";
     logger.d(url);
     Uri uri = Uri.parse(url);
     Map<String, String> requestHeaders = {Constants.tokenName: "$token"};

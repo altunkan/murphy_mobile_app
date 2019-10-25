@@ -28,18 +28,23 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
   SignupState get initialState => SignupState.empty();
 
   @override
-  Stream<SignupState> transform(
+  Stream<SignupState> transformEvents(
     Stream<SignupEvent> events,
     Stream<SignupState> Function(SignupEvent event) next,
   ) {
     final observableStream = events as Observable<SignupEvent>;
     final nonDebounceStream = observableStream.where((event) {
-      return (event is! EmailChanged && event is! PasswordChanged && event is! RetypePasswordChanged);
+      return (event is! EmailChanged &&
+          event is! PasswordChanged &&
+          event is! RetypePasswordChanged);
     });
     final debounceStream = observableStream.where((event) {
-      return (event is EmailChanged || event is PasswordChanged || event is RetypePasswordChanged);
+      return (event is EmailChanged ||
+          event is PasswordChanged ||
+          event is RetypePasswordChanged);
     }).debounceTime(Duration(milliseconds: 300));
-    return super.transform(nonDebounceStream.mergeWith([debounceStream]), next);
+    return super
+        .transformEvents(nonDebounceStream.mergeWith([debounceStream]), next);
   }
 
   @override
@@ -58,14 +63,17 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
   }
 
   Stream<SignupState> _mapEmailChangedToState(String email) async* {
-    yield currentState.update(
+    yield state.update(
       isEmailValid: Validators.isValidEmail(email),
     );
   }
 
-  Stream<SignupState> _mapPasswordChangedToState(String password, String retypePassword) async* {
-    yield currentState.update(
-        isPasswordValid: password.isNotEmpty && retypePassword.isNotEmpty ? password == retypePassword : true);
+  Stream<SignupState> _mapPasswordChangedToState(
+      String password, String retypePassword) async* {
+    yield state.update(
+        isPasswordValid: password.isNotEmpty && retypePassword.isNotEmpty
+            ? password == retypePassword
+            : true);
   }
 
   Stream<SignupState> _mapFormSubmittedToState(
@@ -74,13 +82,17 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
   ) async* {
     yield SignupState.loading();
     try {
-      SignupRequest signupRequest = SignupRequest(email: email, name: email, password: password);
+      SignupRequest signupRequest =
+          SignupRequest(email: email, name: email, password: password);
       SignupResponse signupResponse = await FetchUtil.signup(signupRequest);
 
-      LoginRequest loginRequest = LoginRequest(email: email, password: password);
+      LoginRequest loginRequest =
+          LoginRequest(email: email, password: password);
       LoginResponse loginResponse = await FetchUtil.login(loginRequest);
-      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      sharedPreferences.setString(Constants.tokenValue, "${loginResponse.tokenType} ${loginResponse.accessToken}");
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      sharedPreferences.setString(Constants.tokenValue,
+          "${loginResponse.tokenType} ${loginResponse.accessToken}");
       logger.d(signupResponse);
       yield SignupState.success();
     } on ApiErrorException catch (e) {
@@ -88,7 +100,8 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
       yield SignupState.failure(e.apiError);
     } on Exception catch (e) {
       logger.e(e);
-      yield SignupState.failure(ApiError.fromMessage("Unexpected error occured"));
+      yield SignupState.failure(
+          ApiError.fromMessage("Unexpected error occured"));
     }
   }
 }

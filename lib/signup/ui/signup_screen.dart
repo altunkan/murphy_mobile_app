@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-07 21:45:26 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-20 19:39:02
+ * @Last Modified time: 2019-10-22 20:42:48
  */
 
 import 'package:flutter/material.dart';
@@ -81,7 +81,7 @@ class _SignupFormState extends State<SignupForm> {
             },
           );
         } else if (state.isSuccess) {
-          BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedIn());
+          BlocProvider.of<AuthenticationBloc>(context).add(LoggedIn());
           Navigator.of(context);
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => App()));
@@ -221,24 +221,24 @@ class _SignupFormState extends State<SignupForm> {
   }
 
   void _onEmailChanged() {
-    _signupBloc.dispatch(
+    _signupBloc.add(
       EmailChanged(email: _emailController.text),
     );
   }
 
   void _onFormSubmitted() {
-    _signupBloc.dispatch(Submitted(
+    _signupBloc.add(Submitted(
         email: _emailController.text, password: _passwordController.text));
   }
 
   void _onPasswordChanged() {
-    _signupBloc.dispatch(PasswordChanged(
+    _signupBloc.add(PasswordChanged(
         password: _passwordController.text,
         retypePassword: _retypePasswordController.text));
   }
 
   void _onRetypePasswordChanged() {
-    _signupBloc.dispatch(RetypePasswordChanged(
+    _signupBloc.add(RetypePasswordChanged(
         password: _passwordController.text,
         retypePassword: _retypePasswordController.text));
   }

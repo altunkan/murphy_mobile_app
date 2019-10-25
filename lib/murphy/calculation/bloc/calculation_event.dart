@@ -11,7 +11,7 @@ import '../model/calculation_request.dart';
 
 @immutable
 abstract class CalculationEvent extends Equatable {
-  CalculationEvent([List props = const []]) : super(props);
+  CalculationEvent([List props = const []]);
 }
 
 class Calculate extends CalculationEvent {
@@ -21,9 +21,15 @@ class Calculate extends CalculationEvent {
 
   @override
   String toString() => "Calculate";
+
+  @override
+  List<Object> get props => [calculationRequest];
 }
 
 class AddCalculation extends CalculationEvent {
   @override
   String toString() => "AddCalculation";
+
+  @override
+  List<Object> get props => null;
 }

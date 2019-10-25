@@ -3,7 +3,7 @@ library constants;
 import 'package:flutter/material.dart';
 
 const apiBaseUrl =
-    "http://192.168.1.20:8080/murphy"; //"http://192.168.56.1:8080/murphy";
+    "http://192.168.1.24:8080/murphy"; //"http://192.168.56.1:8080/murphy";
 const loginUrl = "$apiBaseUrl/auth/login";
 const signupUrl = "$apiBaseUrl/auth/signup";
 const userUrl = "$apiBaseUrl/user/me";

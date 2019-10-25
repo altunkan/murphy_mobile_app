@@ -13,16 +13,19 @@ part 'calculation_response.g.dart';
 
 @JsonSerializable()
 class CalculationResponse extends Equatable {
-  int calculationId;
-  String event;
-  double murphy;
-  DateTime eventTime;
+  final int calculationId;
+  final String event;
+  final double murphy;
+  final DateTime eventTime;
 
   CalculationResponse(
-      {@required this.calculationId, @required this.event, @required this.murphy, @required this.eventTime})
-      : super([calculationId]);
+      {@required this.calculationId,
+      @required this.event,
+      @required this.murphy,
+      @required this.eventTime});
 
-  factory CalculationResponse.fromJson(Map<String, dynamic> json) => _$CalculationResponseFromJson(json);
+  factory CalculationResponse.fromJson(Map<String, dynamic> json) =>
+      _$CalculationResponseFromJson(json);
   Map<String, dynamic> toJson() => _$CalculationResponseToJson(this);
 
   @override
@@ -36,4 +39,8 @@ class CalculationResponse extends Equatable {
       }
     """;
   }
+
+  @override
+  List<Object> get props =>
+      [this.calculationId, this.event, this.murphy, this.eventTime];
 }

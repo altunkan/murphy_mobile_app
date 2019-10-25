@@ -12,24 +12,33 @@ import '../model/user.dart';
 
 @immutable
 abstract class AuthenticationState extends Equatable {
-  AuthenticationState([List props = const []]) : super(props);
+  AuthenticationState();
 }
 
 class Uninitialized extends AuthenticationState {
   @override
   String toString() => 'Uninitialized';
+
+  @override
+  List<Object> get props => null;
 }
 
 class Authenticated extends AuthenticationState {
   final User user;
 
-  Authenticated({@required this.user}) : super([user]);
+  Authenticated({@required this.user});
 
   @override
   String toString() => 'Authenticated { user.email: ${user.email} }';
+
+  @override
+  List<Object> get props => [this.user];
 }
 
 class Unauthenticated extends AuthenticationState {
   @override
   String toString() => 'Unauthenticated';
+
+  @override
+  List<Object> get props => null;
 }

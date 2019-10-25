@@ -20,7 +20,7 @@ import './murphy/event/bloc/bloc.dart';
 void main() {
   BlocSupervisor.delegate = SimpleBlocDelegate();
   runApp(BlocProvider(
-      builder: (context) => AuthenticationBloc()..dispatch(AppStarted()),
+      builder: (context) => AuthenticationBloc()..add(AppStarted()),
       child: App()));
 }
 
@@ -52,18 +52,5 @@ class App extends StatelessWidget {
           return null;
         }),
         theme: ThemeData(primaryColor: Color(0xFF6C65EA)));
-  }
-}
-
-class Test extends StatelessWidget {
-  const Test({Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Text("test"),
-      ),
-    );
   }
 }

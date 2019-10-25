@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 import './bloc.dart';
 import '../../event/model/list_event_request.dart';
@@ -21,15 +19,19 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   final _size = 10;
 
   @override
-  Stream<EventState> transform(Stream<EventEvent> events,
-      Stream<EventState> Function(EventEvent event) next) {
-    if (next is ListMoreEvent) {
-      return super.transform(
-          (events as Observable<EventEvent>)
-              .debounceTime(Duration(milliseconds: 3000)),
-          next);
-    }
-    return super.transform(events, next);
+  Stream<EventState> transformEvents(
+    Stream<EventEvent> events,
+    Stream<EventState> Function(EventEvent event) next,
+  ) {
+    final observableStream = events as Observable<EventEvent>;
+    final nonDebounceStream = observableStream.where((event) {
+      return (event is! ListMoreEvent);
+    });
+    final debounceStream = observableStream.where((event) {
+      return (event is ListMoreEvent);
+    }).debounceTime(Duration(milliseconds: 500));
+    return super
+        .transformEvents(nonDebounceStream.mergeWith([debounceStream]), next);
   }
 
   @override
@@ -57,8 +59,6 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     }
 
     yield EventLoading();
-    //await Future.delayed(Duration(seconds: 3));
-
     ListEventRequest listEventRequest =
         ListEventRequest(email: listEvent.email);
     try {
@@ -73,7 +73,9 @@ class EventBloc extends Bloc<EventEvent, EventState> {
           events: events,
           currentPage: currentPage,
           hasReachedMax: _checkMax(size, max),
-          size: size);
+          size: size,
+          singleEventUpdate: false,
+          updatedCalculationId: null);
     } on ApiErrorException catch (e) {
       logger.e(e);
       yield EventLoadingError(e.apiError);
@@ -98,8 +100,8 @@ class EventBloc extends Bloc<EventEvent, EventState> {
       throw UnauthorizedException(message: "You are not logged in");
     }
     try {
-      if (!_hasReachedMax(currentState)) {
-        EventLoaded eventLoaded = currentState;
+      if (!_hasReachedMax(state)) {
+        EventLoaded eventLoaded = state;
         int currentPage = eventLoaded.currentPage;
         int nextPage = currentPage + 1;
         ListEventResponsePage listEventResponsePage =
@@ -116,7 +118,9 @@ class EventBloc extends Bloc<EventEvent, EventState> {
                 events: events,
                 hasReachedMax: _checkMax(size, max),
                 size: size,
-                currentPage: nextPage);
+                currentPage: nextPage,
+                singleEventUpdate: false,
+                updatedCalculationId: null);
       }
     } on ApiErrorException catch (e) {
       logger.e(e);
@@ -140,27 +144,25 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     }
 
     try {
-      if (currentState is EventLoaded) {
-        EventLoaded eventLoaded = currentState;
-        Event updatedEvent = await FetchUtil.updateEventStatus(token,
-            updateEventStatus.calculationId, updateEventStatus.eventStatus);
-        int currentPage = eventLoaded.currentPage;
-        int size = eventLoaded.size;
-        bool hasReachedMax = eventLoaded.hasReachedMax;
+      if (state is EventLoaded) {
+        EventLoaded eventLoaded = state;
+        int updatedCalculationId = updateEventStatus.calculationId;
+        yield eventLoaded.copyWith(
+            singleEventUpdate: true,
+            updatedCalculationId: updatedCalculationId);
+        await Future.delayed(Duration(seconds: 1));
+        Event updatedEvent = await FetchUtil.updateEventStatus(
+            token, updatedCalculationId, updateEventStatus.eventStatus);
         final List<Event> events = List.from(eventLoaded.events.map((event) {
           return event.calculationId == updatedEvent.calculationId
               ? updatedEvent
               : event;
         }).toList());
-        logger.d(events == eventLoaded.events);
-        EventLoaded eventLoaded2 = EventLoaded(
+
+        yield eventLoaded.copyWith(
             events: events,
-            currentPage: currentPage,
-            hasReachedMax: hasReachedMax,
-            size: size);
-        logger.d(eventLoaded == eventLoaded2);
-        //yield eventLoaded.copyWith(events: events);
-        yield eventLoaded2;
+            singleEventUpdate: false,
+            updatedCalculationId: null);
       }
     } on ApiErrorException catch (e) {
       logger.e(e);

@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import '../model/event_status.dart';
 
 abstract class EventEvent extends Equatable {
-  EventEvent([List props = const []]) : super(props);
+  EventEvent([List props = const []]);
 }
 
 class ListEvent extends EventEvent {
@@ -15,6 +15,9 @@ class ListEvent extends EventEvent {
   String toString() {
     return "ListEvent";
   }
+
+  @override
+  List<Object> get props => [this.email];
 }
 
 class ListMoreEvent extends EventEvent {
@@ -26,10 +29,13 @@ class ListMoreEvent extends EventEvent {
   String toString() {
     return "ListMoreEvent";
   }
+
+  @override
+  List<Object> get props => [this.email];
 }
 
 class UpdateEventStatus extends EventEvent {
-  final String calculationId;
+  final int calculationId;
   final EventStatus eventStatus;
 
   UpdateEventStatus(this.calculationId, this.eventStatus);
@@ -38,4 +44,7 @@ class UpdateEventStatus extends EventEvent {
   String toString() {
     return "UpdateEventStatus{calculationId: $calculationId, eventStatus: $eventStatus}";
   }
+
+  @override
+  List<Object> get props => [this.calculationId, this.eventStatus];
 }

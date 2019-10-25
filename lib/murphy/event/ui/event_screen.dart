@@ -2,7 +2,7 @@
  * @Author: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com 
  * @Date: 2019-10-16 22:16:53 
  * @Last Modified by: MEHMET ANIL ALTUNKAN - altunkan[at]gmail.com
- * @Last Modified time: 2019-10-22 17:21:34
+ * @Last Modified time: 2019-10-22 22:02:46
  */
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,20 +68,46 @@ class _EventListState extends State<EventList> {
         if (state is EventLoading) {
           return Center(child: CircularProgressIndicator());
         } else if (state is EventLoaded) {
-          return ListView.separated(
-            padding: EdgeInsets.all(4.0),
-            itemCount: state.hasReachedMax
-                ? state.events.length
-                : state.events.length + 1,
-            itemBuilder: (BuildContext context, int index) {
-              return index >= state.events.length
-                  ? BottomLoader()
-                  : _eventCard(state.events[index]);
-            },
-            separatorBuilder: (BuildContext context, int index) {
-              return SizedBox(width: 0, height: 5);
-            },
-            controller: _scrollController,
+          return Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
+                child: Text("Swipe left-right for actions..",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontStyle: FontStyle.italic)),
+              ),
+              Expanded(
+                child: ListView.separated(
+                  padding: EdgeInsets.all(4.0),
+                  itemCount: state.hasReachedMax
+                      ? state.events.length
+                      : state.events.length + 1,
+                  itemBuilder: (BuildContext context, int index) {
+                    if (state.singleEventUpdate &&
+                        state.updatedCalculationId ==
+                            state.events[index].calculationId) {
+                      return Container(
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.all(16.0),
+                          child: SizedBox(
+                            width: 24.0,
+                            height: 24.0,
+                            child: CircularProgressIndicator(strokeWidth: 2.0),
+                          ));
+                    } else {
+                      return index >= state.events.length
+                          ? BottomLoader()
+                          : _eventCard(state.events[index]);
+                    }
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return SizedBox(width: 0, height: 5);
+                  },
+                  controller: _scrollController,
+                ),
+              ),
+            ],
           );
         } else {
           return Center(child: Text(state.toString()));
@@ -97,7 +123,7 @@ class _EventListState extends State<EventList> {
     switch (event.status) {
       case EventStatus.NEW:
         listTile = ListTile(
-          leading: Icon(FontAwesomeIcons.bomb),
+          leading: Icon(Icons.thumbs_up_down),
           title:
               Text(event.event, style: TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text(
@@ -107,29 +133,29 @@ class _EventListState extends State<EventList> {
         break;
       case EventStatus.SUCCESS:
         listTile = ListTile(
-          leading: Icon(FontAwesomeIcons.smile, color: Constants.mainColor),
+          leading: Icon(Icons.thumb_up, color: Constants.mainColor),
           title: Text(event.event,
               style: TextStyle(
                   color: Constants.mainColor, fontWeight: FontWeight.w700)),
           subtitle: Text(
               event.eventTime != null ? formatter.format(event.eventTime) : ""),
-          trailing: Text("$murphyPerc%"),
+          trailing: Text("$murphyPerc%",
+              style: TextStyle(color: Constants.mainColor)),
         );
         break;
       case EventStatus.FAILURE:
         listTile = ListTile(
-          leading: Icon(FontAwesomeIcons.sadCry, color: Colors.red),
+          leading: Icon(Icons.thumb_down, color: Colors.red),
           title: Text(event.event,
               style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700)),
           subtitle: Text(
               event.eventTime != null ? formatter.format(event.eventTime) : ""),
-          trailing: Text("$murphyPerc%"),
+          trailing: Text("$murphyPerc%", style: TextStyle(color: Colors.red)),
         );
         break;
     }
-    //Color murphyFailed = Colors.
-    //Icon icon = FontAwesomeIcons.smile;
     return Slidable(
+      key: Key(event.calculationId.toString()),
       child: Card(
         elevation: 2,
         child: listTile,
@@ -139,10 +165,10 @@ class _EventListState extends State<EventList> {
       actions: <Widget>[
         IconSlideAction(
           caption: "Murphied",
-          icon: FontAwesomeIcons.sadCry,
+          icon: FontAwesomeIcons.frown,
           onTap: () {
-            _eventBloc.dispatch(UpdateEventStatus(
-                event.calculationId.toString(), EventStatus.FAILURE));
+            _eventBloc.add(
+                UpdateEventStatus(event.calculationId, EventStatus.FAILURE));
           },
         )
       ],
@@ -151,8 +177,8 @@ class _EventListState extends State<EventList> {
           caption: "Not Murphied",
           icon: FontAwesomeIcons.smile,
           onTap: () {
-            _eventBloc.dispatch(UpdateEventStatus(
-                event.calculationId.toString(), EventStatus.SUCCESS));
+            _eventBloc.add(
+                UpdateEventStatus(event.calculationId, EventStatus.SUCCESS));
           },
         )
       ],
@@ -165,8 +191,8 @@ class _EventListState extends State<EventList> {
     _eventBloc = BlocProvider.of<EventBloc>(context);
     _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
 
-    if (_authenticationBloc.currentState is Authenticated) {
-      Authenticated authenticated = _authenticationBloc.currentState;
+    if (_authenticationBloc.state is Authenticated) {
+      Authenticated authenticated = _authenticationBloc.state;
       _user = authenticated.user;
     }
 
@@ -177,7 +203,7 @@ class _EventListState extends State<EventList> {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      _eventBloc.dispatch(ListMoreEvent(_user.email));
+      _eventBloc.add(ListMoreEvent(_user.email));
     }
   }
 

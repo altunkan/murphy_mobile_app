@@ -12,7 +12,7 @@ import '../../../util/model/api_error.dart';
 
 @immutable
 abstract class CalculationState extends Equatable {
-  CalculationState([List props = const []]) : super(props);
+  CalculationState([List props = const []]);
 }
 
 class CalculationNew extends CalculationState {
@@ -90,11 +90,17 @@ class CalculationNew extends CalculationState {
   */
   @override
   String toString() => "CalculationNew";
+
+  @override
+  List<Object> get props => null;
 }
 
 class CalculationLoading extends CalculationState {
   @override
   String toString() => "CalculationLoading";
+
+  @override
+  List<Object> get props => null;
 }
 
 class CalculationProcessed extends CalculationState {
@@ -104,6 +110,9 @@ class CalculationProcessed extends CalculationState {
 
   @override
   String toString() => "CalculationProcessed";
+
+  @override
+  List<Object> get props => [this.calculationResponse];
 }
 
 class CalculationError extends CalculationState {
@@ -113,4 +122,7 @@ class CalculationError extends CalculationState {
 
   @override
   String toString() => "CalculationError";
+
+  @override
+  List<Object> get props => [this.apiError];
 }
